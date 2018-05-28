@@ -5,10 +5,16 @@
  */
 package util;
 
+import com.google.gson.Gson;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -16,6 +22,7 @@ import javax.swing.filechooser.FileSystemView;
  * @author Admin
  */
 public class FilesUtil {
+    public static int id = 1;
 
     /**
      * List all the files and folders from a directory
@@ -52,6 +59,20 @@ public class FilesUtil {
         
         return list;
     }
+    
+    public static ArrayList<File> listFilesV2(String directoryName) {
+        ArrayList<File> list = new ArrayList<>();
+        
+        File directory = new File(directoryName);
+        File[] fList = directory.listFiles();
+        for (File file : fList) {
+            if (file.isFile()) {
+                list.add(file);
+            }
+        }
+        
+        return list;
+    }
 
     /**
      * List all the folder under a directory
@@ -63,9 +84,12 @@ public class FilesUtil {
         
         File directory = new File(directoryName);
         File[] fList = directory.listFiles();
+        
+        System.out.println(fList.length);
         for (File file : fList) {
             if (file.isDirectory()) {
                 list.add(file.getName());
+                System.out.println(file.getName());
             }
         }
         
@@ -90,19 +114,26 @@ public class FilesUtil {
         }
     }
     
-    public static File[] listFolderAndSub(String directoryName) {
+    public static ArrayList<HashMap<String, String>> listFolderAndSub(ArrayList<HashMap<String, String>> result, String directoryName, int parentId) {
         File directory = new File(directoryName);
         File[] fList = directory.listFiles();
+        System.out.println(fList.length);
         
-//        for (int i=0; i<fList.length; i++) {
-//            if (fList[i].isDirectory()) {
-//                list.put(parent, fList[i].getName());
-//                System.out.println(fList[i].getParent() + ": " + fList[i].getName());
-//                listFolderAndSub(fList[i].getAbsolutePath(), parent + 1);
-//            }
-//        }
+        if (fList.length > 0 || fList != null) {
+            for (int i=0; i<fList.length; i++) {
+                if (fList[i].isDirectory()) {
+                    System.out.println("curId: " + id +  ", parentId: " + parentId + " -- " + fList[i].getName());
+
+                    HashMap<String, String> pairs = new HashMap<>();
+                    result.add(pairs);
+                    result.get(parentId).put(id+"", fList[i].getName());
+
+                    listFolderAndSub(result, fList[i].getAbsolutePath(), id++);
+                }
+            }
+        }
         
-        return fList;
+        return result;
     }
 
     public void listDrivers() {
@@ -116,7 +147,8 @@ public class FilesUtil {
         }
     }
     
-    public static void main(String[] args) {
-        listFolderAndSub("__UPLOAD__");
+    public static void main(String[] args) throws IOException {
+        ArrayList<HashMap<String, String>> res = new ArrayList<>();
+        listFolderAndSub(res, "D:\\DUT", 0);
     }
 }

@@ -26,7 +26,11 @@ public class ClientPI {
     private BufferedReader br = null;
     private BufferedWriter bw = null;
     private int portDTP;
-    private boolean isLogged = false;
+    private String user_token;
+    private String user_session;
+    
+    public String getUserSession() { return this.user_session; }
+    public String getUserToken() { return this.user_token; }
     
     public static void write(BufferedWriter bw, String res) throws IOException {
         bw.write(res);
@@ -53,26 +57,68 @@ public class ClientPI {
         return message;
     }
     
-    public void verifyLogin(String username, String password) throws IOException {
+    public void verifyLogin(String username, String password) throws Exception {
+        // NOTE: Send user info to server check login
         HashMap<String, String> pairs = new HashMap<String, String>();
         pairs.put("username", username);
         pairs.put("password",password);
         String json = new Gson().toJson(pairs);
-        
         ClientPI.write(bw, json);
         
+        // NOTE: Get response from server about login fail/success
         String res = br.readLine();
         HashMap<String, String> resPairs = new HashMap<String, String>();
         resPairs = new Gson().fromJson(res, resPairs.getClass());
         
         String status = resPairs.get("status");
         if (status.equals("fail")) { 
-            throw new IOException(resPairs.get("message"));
+            throw new Exception(resPairs.get("message"));
         } else {
-            isLogged = true;
-            // NOTE: Receive port from handshake
+            user_token = resPairs.get("user_token");
+            user_session = username;
+            
+            // NOTE: Receive portDTP from handshake
             portDTP = Integer.parseInt(resPairs.get("message"));
             CONFIG.print("verifyLogin port: " + portDTP);
+            CONFIG.print("verifyLogin user_token: " + user_token);
         }
+    }
+
+    public String listFilesAndFoldersFromServer(String path) {
+        String res = "";
+        
+        try {
+            HashMap<String, String> pairs = new HashMap<>();
+            pairs.put("user_token", user_token);
+            pairs.put("action", "listFilesAndFolders");
+            pairs.put("payload", path);
+            ClientPI.write(bw, new Gson().toJson(pairs));
+            
+            // NOTE: Receive response for request
+            res = br.readLine();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return res;
+    }
+
+    public String listDirsFromServer(String path) {
+        String res = "";
+        
+        try {
+            HashMap<String, String> pairs = new HashMap<>();
+            pairs.put("user_token", user_token);
+            pairs.put("action", "listDirs");
+            pairs.put("payload", path);
+            ClientPI.write(bw, new Gson().toJson(pairs));
+            
+            // NOTE: Receive response for request
+            res = br.readLine();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return res;
     }
 }
