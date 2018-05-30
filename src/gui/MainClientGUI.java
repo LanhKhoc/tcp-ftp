@@ -35,6 +35,7 @@ public class MainClientGUI extends javax.swing.JFrame {
         
         actionClient.setJTreeDirs(treeDirsClient);
         actionClient.setJTreeFilesFolders(treeFilesFoldersClient);
+        actionClient.setTxtPathClient(txtPathClient);
         actionClient.initJTreeClientDirs();
         actionClient.initJTreeFilesFoldersClient();
     }
@@ -67,14 +68,13 @@ public class MainClientGUI extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
+        txtPathClient = new javax.swing.JTextField();
         jScrollPane6 = new javax.swing.JScrollPane();
         treeDirsClient = new javax.swing.JTree();
         jPanel5 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
-        txtServerPath = new javax.swing.JTextField();
+        txtPathServer = new javax.swing.JTextField();
         jScrollPane3 = new javax.swing.JScrollPane();
         treeDirsServer = new javax.swing.JTree();
         jPanel9 = new javax.swing.JPanel();
@@ -83,6 +83,10 @@ public class MainClientGUI extends javax.swing.JFrame {
         jPanel10 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         treeFilesFoldersServer = new javax.swing.JTree();
+        jPanel6 = new javax.swing.JPanel();
+        btnUpload = new javax.swing.JButton();
+        jPanel11 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -232,13 +236,12 @@ public class MainClientGUI extends javax.swing.JFrame {
 
         jLabel1.setText("Local Site:");
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtPathClient.setEditable(false);
+        txtPathClient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtPathClientActionPerformed(evt);
             }
         });
-
-        jButton2.setText("Browser");
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -248,17 +251,13 @@ public class MainClientGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(txtPathClient))
         );
         jPanel7Layout.setVerticalGroup(
             jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(jLabel1)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jButton2))
+                .addComponent(txtPathClient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
@@ -286,9 +285,10 @@ public class MainClientGUI extends javax.swing.JFrame {
 
         jLabel6.setText("Remote Site:");
 
-        txtServerPath.addActionListener(new java.awt.event.ActionListener() {
+        txtPathServer.setEditable(false);
+        txtPathServer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtServerPathActionPerformed(evt);
+                txtPathServerActionPerformed(evt);
             }
         });
 
@@ -300,13 +300,13 @@ public class MainClientGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtServerPath))
+                .addComponent(txtPathServer))
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 .addComponent(jLabel6)
-                .addComponent(txtServerPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(txtPathServer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
@@ -364,20 +364,61 @@ public class MainClientGUI extends javax.swing.JFrame {
             .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
         );
 
+        btnUpload.setText("Upload");
+        btnUpload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUploadActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(216, 216, 216)
+                .addComponent(btnUpload)
+                .addContainerGap(232, Short.MAX_VALUE))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(btnUpload, javax.swing.GroupLayout.Alignment.TRAILING)
+        );
+
+        jButton2.setText("Download");
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(211, 211, 211)
+                .addComponent(jButton2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jButton2))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -393,7 +434,11 @@ public class MainClientGUI extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
 
         pack();
@@ -424,25 +469,39 @@ public class MainClientGUI extends javax.swing.JFrame {
             
             // NOTE: Show folders and files from server
             // Server know folder belong to what users?
-            txtServerPath.setText("/");
+            txtPathServer.setText("/");
             actionServer.initJTreeFilesFoldersServer(treeFilesFoldersServer);
+            actionServer.setTreeDirs(treeDirsServer);
+            actionServer.setTreeFilesFolders(treeFilesFoldersServer);
+            actionServer.setTxtPath(txtPathServer);
+            
             actionServer.showJTreeServerDirs(treeDirsServer, "/");
-            actionServer.showJTreeServerFilesFolders(treeFilesFoldersServer, "");
+            actionServer.showJTreeServerFilesFolders(treeFilesFoldersServer, "/");
+            treeFilesFoldersServer.addTreeSelectionListener(actionServer.handleTreeFilesFoldersSelection);
             treeFilesFoldersServer.addTreeWillExpandListener(actionServer.handleTreeFilesFoldersWillExpand);
+            treeDirsServer.addTreeWillExpandListener(actionServer.handleTreeDirsWillExpand);
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtPathClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathClientActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtPathClientActionPerformed
 
-    private void txtServerPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtServerPathActionPerformed
+    private void txtPathServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPathServerActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtServerPathActionPerformed
+    }//GEN-LAST:event_txtPathServerActionPerformed
 
     private void txtPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPortActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPortActionPerformed
+
+    private void btnUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUploadActionPerformed
+        String pathClient = txtPathClient.getText();
+        String pathServer = txtPathServer.getText();
+        CONFIG.print("UPLOAD: " + pathClient + " -> " + pathServer);
+        
+        actionClient.upload(pathClient, pathServer);
+    }//GEN-LAST:event_btnUploadActionPerformed
 
     /**
      * @param args the command line arguments
@@ -484,6 +543,7 @@ public class MainClientGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnect;
+    private javax.swing.JButton btnUpload;
     private javax.swing.JButton jButton2;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JFrame jFrame2;
@@ -495,10 +555,12 @@ public class MainClientGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
@@ -507,7 +569,6 @@ public class MainClientGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTree treeDirsClient;
     private javax.swing.JTree treeDirsServer;
     private javax.swing.JTree treeFilesFoldersClient;
@@ -515,8 +576,9 @@ public class MainClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextArea txaStatus;
     private javax.swing.JTextField txtHost;
     private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtPathClient;
+    private javax.swing.JTextField txtPathServer;
     private javax.swing.JTextField txtPort;
-    private javax.swing.JTextField txtServerPath;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }

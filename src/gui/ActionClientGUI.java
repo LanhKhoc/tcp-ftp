@@ -8,10 +8,13 @@ package gui;
 import client.ClientPI;
 import java.io.File;
 import java.util.ArrayList;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -27,7 +30,8 @@ public class ActionClientGUI {
     private ClientPI clientPI;
     private JTree treeDirs;
     private JTree treeFilesFolders;
-    
+    private JTextField txtPathClient;
+
     public ActionClientGUI(ClientPI _clientPI) {
         this.clientPI = _clientPI;
     }
@@ -38,6 +42,14 @@ public class ActionClientGUI {
     
     public void setJTreeFilesFolders(JTree _treeFilesFolders) {
         this.treeFilesFolders = _treeFilesFolders;
+    }
+    
+    public void setTxtPathClient(JTextField txtPathClient) {
+        this.txtPathClient = txtPathClient;
+    }
+    
+    public void upload(String pathClient, String pathServer) {
+        this.clientPI.getClientDTP().upload(pathClient, pathServer);
     }
     
     public void showJTreeClientFilesFolders(JTree jTree, String path) {
@@ -86,26 +98,15 @@ public class ActionClientGUI {
     
     // NOTE: Handle jTreeFilesFoldersClient expand folder
     public void showJTreeFilesFoldersByFilesFolders(DefaultMutableTreeNode curNode, File[] files) {
-//        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
-        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) curNode.getParent();
-        DefaultMutableTreeNode grandNode = (DefaultMutableTreeNode) parentNode.getParent();
-        if (grandNode != null) {
-            curNode.setUserObject(grandNode.getUserObject());
-//            rootNode.setParent((MutableTreeNode) grandNode);
-        }
-        
-        DefaultTreeModel model = new DefaultTreeModel(curNode, true);
-     
-        Object obj = parentNode.getUserObject();
-        if (obj instanceof FileNode) {
-            curNode.add(new DefaultMutableTreeNode((FileNode) obj));
-        }
+        FileNode fNode = getFileNode(curNode);
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(fNode.getFile().getPath());
+        DefaultTreeModel model = new DefaultTreeModel(rootNode, true);
         
         for (File f : files) {
             if (f.isFile()) {
-                curNode.add(new DefaultMutableTreeNode(new FileNode(f), false));
+                rootNode.add(new DefaultMutableTreeNode(new FileNode(f), false));
             } else {
-                curNode.add(new DefaultMutableTreeNode(new FileNode(f)));
+                rootNode.add(new DefaultMutableTreeNode(new FileNode(f)));
             }
         }
         
@@ -132,6 +133,7 @@ public class ActionClientGUI {
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Computer");
         DefaultTreeModel model = new DefaultTreeModel(rootNode, true);
         treeFilesFolders.addTreeExpansionListener(new FilesFoldersExpansionListener(model));
+        treeFilesFolders.addTreeSelectionListener(handleTreeFilesFoldersSelection);
 
         File[] files;
         files = File.listRoots();
@@ -144,25 +146,38 @@ public class ActionClientGUI {
         }
     }
     
+    DefaultMutableTreeNode getTreeNode(TreePath path) {
+        return (DefaultMutableTreeNode) (path.getLastPathComponent());
+    }
+
+    FileNode getFileNode(DefaultMutableTreeNode node) {
+        if (node == null) { return null; }
+        Object obj = node.getUserObject();
+        if (obj instanceof FileNode) {
+            return (FileNode) obj;
+        } else {
+            return null;
+        }
+    }
+    
+    public TreeSelectionListener handleTreeFilesFoldersSelection = new TreeSelectionListener() {
+        @Override
+        public void valueChanged(TreeSelectionEvent e) {
+            DefaultMutableTreeNode node = getTreeNode(e.getPath());
+            FileNode f = getFileNode(node);
+            if (f != null) {
+                txtPathClient.setText(f.getFile().getPath());
+                CONFIG.print(f.getFile().getPath());
+            }
+        }
+        
+    };
+    
     class FilesFoldersExpansionListener implements TreeExpansionListener {
         DefaultTreeModel m_model;
 
         public FilesFoldersExpansionListener(DefaultTreeModel m_model) {
             this.m_model = m_model;
-        }
-        
-        DefaultMutableTreeNode getTreeNode(TreePath path) {
-            return (DefaultMutableTreeNode) (path.getLastPathComponent());
-        }
-
-        FileNode getFileNode(DefaultMutableTreeNode node) {
-            if (node == null) { return null; }
-            Object obj = node.getUserObject();
-            if (obj instanceof FileNode) {
-                return (FileNode) obj;
-            } else {
-                return null;
-            }
         }
         
         @Override
@@ -195,7 +210,7 @@ public class ActionClientGUI {
 
         @Override
         public void treeCollapsed(TreeExpansionEvent event) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 
@@ -206,20 +221,6 @@ public class ActionClientGUI {
             this.m_model = m_model;
         }
 
-        DefaultMutableTreeNode getTreeNode(TreePath path) {
-            return (DefaultMutableTreeNode) (path.getLastPathComponent());
-        }
-
-        FileNode getFileNode(DefaultMutableTreeNode node) {
-            if (node == null) { return null; }
-            Object obj = node.getUserObject();
-            if (obj instanceof FileNode) {
-                return (FileNode) obj;
-            } else {
-                return null;
-            }
-        }
-
         @Override
         public void treeExpanded(TreeExpansionEvent event) {
             final DefaultMutableTreeNode node = getTreeNode(event.getPath());
@@ -228,7 +229,7 @@ public class ActionClientGUI {
             // TODO: Show files + folder at treeFoldersClient
             File[] files = fnode.listFiles();
             DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
-            showJTreeClientFilesFolders(treeFilesFolders, parentNode, files);
+            showJTreeFilesFoldersByFilesFolders(node, files);
 
             Thread runner = new Thread() {
                 @Override

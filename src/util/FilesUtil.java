@@ -40,6 +40,11 @@ public class FilesUtil {
         
         return list;
     }
+    
+    public static boolean isFolder(String path) {
+        File f = new File(path);
+        return f.isDirectory();
+    }
 
     /**
      * List all the files under a directory
@@ -85,11 +90,9 @@ public class FilesUtil {
         File directory = new File(directoryName);
         File[] fList = directory.listFiles();
         
-        System.out.println(fList.length);
         for (File file : fList) {
             if (file.isDirectory()) {
                 list.add(file.getName());
-                System.out.println(file.getName());
             }
         }
         

@@ -9,27 +9,26 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import vendor.CONFIG;
 
 /**
  *
  * @author Admin
  */
-public class ServerPI {
-    private ServerSocket serverSocket = null;
+public class ServerDTP {
+    private ServerSocket serverSocket;
     private Socket socket = null;
-
-    public ServerPI(int port) throws IOException {
+    
+    public ServerDTP(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        CONFIG.print("Server PI started at port: " + port);
+        CONFIG.print("Server DTP started at port: " + port);
     }
     
     public void listen() throws IOException {
         while (true) {
             socket = serverSocket.accept();
-            ServerThreadPI st = new ServerThreadPI(socket);
+            CONFIG.print("ServerDTP: New client connected!");
+            ServerThreadDTP st = new ServerThreadDTP(socket);
             st.start();
         }
     }

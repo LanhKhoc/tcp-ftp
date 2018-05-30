@@ -10,8 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -24,9 +27,24 @@ import vendor.CONFIG;
  */
 public class ActionServerGUI {
     private ClientPI clientPI;
-    
+    private JTree treeDirs;
+    private JTree treeFilesFolders;
+    private JTextField txtPath;
+
     public ActionServerGUI(ClientPI _clientPI) {
         this.clientPI = _clientPI;
+    }
+
+    public void setTreeDirs(JTree treeDirs) {
+        this.treeDirs = treeDirs;
+    }
+
+    public void setTreeFilesFolders(JTree treeFilesFolders) {
+        this.treeFilesFolders = treeFilesFolders;
+    }
+    
+    public void setTxtPath(JTextField txtPath) {
+        this.txtPath = txtPath;
     }
     
     public HashMap<String, String> handleConnect(String host, String username, String password, String port) {
@@ -39,6 +57,26 @@ public class ActionServerGUI {
         return this.clientPI.connect(host, username, password, port);
     }
     
+    public TreeWillExpandListener handleTreeDirsWillExpand = new TreeWillExpandListener () {
+        @Override
+        public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+            String curPath = "";
+            CONFIG.print("treeWillExpand: " + event.getPath().toString());
+            
+            Object[] paths = event.getPath().getPath();
+            for (int i=0; i<paths.length; i++) {
+                if (i != 0) { curPath += "/"; }
+                if (paths[i].toString().equals("/") == false) curPath += paths[i];
+            }
+            CONFIG.print("treeWillExpand parent: " + curPath);
+            showJTreeServerFilesFolders((JTree) event.getSource(), curPath);
+        }
+
+        @Override
+        public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+        }
+    };
+    
     public TreeWillExpandListener handleTreeFilesFoldersWillExpand = new TreeWillExpandListener () {
         @Override
         public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
@@ -48,7 +86,7 @@ public class ActionServerGUI {
             Object[] paths = event.getPath().getPath();
             for (int i=0; i<paths.length; i++) {
                 if (i != 0) { curPath += "/"; }
-                curPath += paths[i];
+                if (paths[i].toString().equals("/") == false) curPath += paths[i];
             }
             CONFIG.print("treeWillExpand parent: " + curPath);
             showJTreeServerFilesFolders((JTree) event.getSource(), curPath);
@@ -56,7 +94,22 @@ public class ActionServerGUI {
 
         @Override
         public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+        }
+    };
+
+    public TreeSelectionListener handleTreeFilesFoldersSelection = new TreeSelectionListener() {
+        @Override
+        public void valueChanged(TreeSelectionEvent e) {
+            String curPath = "";
+            CONFIG.print("treeWillExpand: " + e.getPath().toString());
             
+            Object[] paths = e.getPath().getPath();
+            for (int i=0; i<paths.length; i++) {
+                if (i != 0) { curPath += "/"; }
+                if (paths[i].toString().equals("/") == false) curPath += paths[i];
+            }
+            
+            txtPath.setText(curPath);
         }
     };
     
@@ -97,7 +150,6 @@ public class ActionServerGUI {
         pairs = new Gson().fromJson(json, pairs.getClass());
         
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(parentPath);
-        if (!parentPath.equals("")) { rootNode.add(new DefaultMutableTreeNode("...")); } 
         DefaultTreeModel model = new DefaultTreeModel(rootNode, true);
         for (String folderName : pairs.get("folders")) {
             rootNode.add(new DefaultMutableTreeNode(folderName));
@@ -105,7 +157,7 @@ public class ActionServerGUI {
         for (String fileName : pairs.get("files")) {
             rootNode.add(new DefaultMutableTreeNode(fileName, false));
         }
-        jTree.setModel(model);
+        treeFilesFolders.setModel(model);
     }
     
     public void initJTreeFilesFoldersServer(JTree jTree) {

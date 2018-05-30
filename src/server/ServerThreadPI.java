@@ -6,7 +6,6 @@
 package server;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -75,7 +72,7 @@ public class ServerThreadPI extends Thread {
                 String req = br.readLine();
                 HashMap<String, String> reqPairs = new HashMap<String, String>();
                 reqPairs = new Gson().fromJson(req, reqPairs.getClass());
-                CONFIG.print("while(true): " + req);
+                CONFIG.print("PI while(true): " + req);
                 
                 if (reqPairs.get("user_token").equals(user_token) == false) { socket.close(); break; }
                 String res = "";

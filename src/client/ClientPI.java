@@ -22,15 +22,18 @@ import vendor.CONFIG;
  * @author Admin
  */
 public class ClientPI {
+    private ClientDTP clientDTP;
     private Socket clientSocket;
     private BufferedReader br = null;
     private BufferedWriter bw = null;
+    private String hostDTP;
     private int portDTP;
     private String user_token;
     private String user_session;
     
     public String getUserSession() { return this.user_session; }
     public String getUserToken() { return this.user_token; }
+    public ClientDTP getClientDTP() { return this.clientDTP; }
     
     public static void write(BufferedWriter bw, String res) throws IOException {
         bw.write(res);
@@ -49,6 +52,10 @@ public class ClientPI {
             
             // NOTE: Send username/password to server check login
             verifyLogin(username, password);
+            
+            // NOTE: Create Client DTP to handle file transfer
+            hostDTP = host;
+            clientDTP = new ClientDTP(hostDTP, portDTP, user_session, user_token);
         } catch (Exception ex) {
             Logger.getLogger(ClientPI.class.getName()).log(Level.SEVERE, null, ex);
             message.put("error", ex.getMessage());

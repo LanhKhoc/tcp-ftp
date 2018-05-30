@@ -5,6 +5,8 @@
  */
 package util;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import javax.xml.bind.DatatypeConverter;
@@ -19,5 +21,11 @@ public class common_util {
         md5.update(str.getBytes());
         byte[] digest = md5.digest();
         return DatatypeConverter.printHexBinary(digest);
+    }
+    
+    public static void write(BufferedWriter bw, String str) throws IOException {
+        bw.write(str);
+        bw.newLine();
+        bw.flush();
     }
 }

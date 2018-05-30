@@ -16,12 +16,31 @@ import vendor.CONFIG;
  * @author Admin
  */
 public class MainServer {
-    private ServerSocket serverSocket;
-    
     public static void main(String[] args) {
         try {
             ServerPI serverPI = new ServerPI(CONFIG.PORT_PI);
-            serverPI.listen();
+            ServerDTP serverDTP = new ServerDTP(CONFIG.PORT_DTP);
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        serverDTP.listen();
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }.start();
+            
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        serverPI.listen();
+                    } catch (IOException ex) {
+                        Logger.getLogger(MainServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }.start();
         } catch (IOException ex) {
             Logger.getLogger(MainServer.class.getName()).log(Level.SEVERE, null, ex);
         }
