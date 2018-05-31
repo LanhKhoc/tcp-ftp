@@ -5,16 +5,10 @@
  */
 package util;
 
-import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
 
 /**
@@ -28,6 +22,7 @@ public class FilesUtil {
      * List all the files and folders from a directory
      *
      * @param directoryName to be listed
+     * @return 
      */
     public static ArrayList<String> listFilesAndFolders(String directoryName) {
         ArrayList<String> list = new ArrayList<>();
@@ -44,6 +39,11 @@ public class FilesUtil {
     public static boolean isFolder(String path) {
         File f = new File(path);
         return f.isDirectory();
+    }
+    
+    public static boolean isFile(String path) {
+        File f = new File(path);
+        return f.isFile();
     }
 
     /**

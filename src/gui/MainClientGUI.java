@@ -6,6 +6,7 @@
 package gui;
 
 import client.ClientPI;
+import com.google.gson.Gson;
 import java.util.HashMap;
 import javax.swing.tree.DefaultMutableTreeNode;
 import vendor.CONFIG;
@@ -86,7 +87,7 @@ public class MainClientGUI extends javax.swing.JFrame {
         jPanel6 = new javax.swing.JPanel();
         btnUpload = new javax.swing.JButton();
         jPanel11 = new javax.swing.JPanel();
-        jButton2 = new javax.swing.JButton();
+        btnDownload = new javax.swing.JButton();
 
         javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
         jFrame1.getContentPane().setLayout(jFrame1Layout);
@@ -385,7 +386,12 @@ public class MainClientGUI extends javax.swing.JFrame {
             .addComponent(btnUpload, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
-        jButton2.setText("Download");
+        btnDownload.setText("Download");
+        btnDownload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDownloadActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
@@ -393,14 +399,14 @@ public class MainClientGUI extends javax.swing.JFrame {
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGap(211, 211, 211)
-                .addComponent(jButton2)
+                .addComponent(btnDownload)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jButton2))
+                .addComponent(btnDownload))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -470,16 +476,18 @@ public class MainClientGUI extends javax.swing.JFrame {
             // NOTE: Show folders and files from server
             // Server know folder belong to what users?
             txtPathServer.setText("/");
-            actionServer.initJTreeFilesFoldersServer(treeFilesFoldersServer);
+            
             actionServer.setTreeDirs(treeDirsServer);
             actionServer.setTreeFilesFolders(treeFilesFoldersServer);
             actionServer.setTxtPath(txtPathServer);
+            actionServer.initJTreeFilesFoldersServer(treeFilesFoldersServer);
             
             actionServer.showJTreeServerDirs(treeDirsServer, "/");
-            actionServer.showJTreeServerFilesFolders(treeFilesFoldersServer, "/");
-            treeFilesFoldersServer.addTreeSelectionListener(actionServer.handleTreeFilesFoldersSelection);
-            treeFilesFoldersServer.addTreeWillExpandListener(actionServer.handleTreeFilesFoldersWillExpand);
+//            actionServer.showJTreeServerFilesFolders("/");
+//            treeFilesFoldersServer.addTreeSelectionListener(actionServer.handleTreeFilesFoldersSelection);
+//            treeFilesFoldersServer.addTreeWillExpandListener(actionServer.handleTreeFilesFoldersWillExpand);
             treeDirsServer.addTreeWillExpandListener(actionServer.handleTreeDirsWillExpand);
+            treeDirsServer.addTreeSelectionListener(actionServer.handleTreeDirsSelection);
         }
     }//GEN-LAST:event_btnConnectActionPerformed
 
@@ -500,8 +508,26 @@ public class MainClientGUI extends javax.swing.JFrame {
         String pathServer = txtPathServer.getText();
         CONFIG.print("UPLOAD: " + pathClient + " -> " + pathServer);
         
-        actionClient.upload(pathClient, pathServer);
+        txaStatus.append(">> Status: \t" + "Checking for upload...\n");
+        
+        String res = actionServer.upload(pathClient, pathServer);
+        HashMap<String, String> pairs = new HashMap<>();
+        pairs = new Gson().fromJson(res, pairs.getClass());
+        txaStatus.append(">> Status: \t" + pairs.get("message") + "\n");
     }//GEN-LAST:event_btnUploadActionPerformed
+
+    private void btnDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDownloadActionPerformed
+        String pathClient = txtPathClient.getText();
+        String pathServer = txtPathServer.getText();
+        CONFIG.print("DOWNLOAD: " + pathClient + " -> " + pathServer);
+        
+        txaStatus.append(">> Status: \t" + "Checking for download...\n");
+        
+        String res = actionClient.download(pathClient, pathServer);
+        HashMap<String, String> pairs = new HashMap<>();
+        pairs = new Gson().fromJson(res, pairs.getClass());
+        txaStatus.append(">> Status: \t" + pairs.get("message") + "\n");
+    }//GEN-LAST:event_btnDownloadActionPerformed
 
     /**
      * @param args the command line arguments
@@ -543,8 +569,8 @@ public class MainClientGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnConnect;
+    private javax.swing.JButton btnDownload;
     private javax.swing.JButton btnUpload;
-    private javax.swing.JButton jButton2;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JFrame jFrame2;
     private javax.swing.JLabel jLabel1;

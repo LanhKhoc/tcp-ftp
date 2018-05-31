@@ -30,6 +30,8 @@ public class ActionServerGUI {
     private JTree treeDirs;
     private JTree treeFilesFolders;
     private JTextField txtPath;
+    DefaultTreeModel modelDirs;
+    DefaultTreeModel modelFilesFolders;
 
     public ActionServerGUI(ClientPI _clientPI) {
         this.clientPI = _clientPI;
@@ -48,13 +50,43 @@ public class ActionServerGUI {
     }
     
     public HashMap<String, String> handleConnect(String host, String username, String password, String port) {
-        HashMap<String, String> message = new HashMap<String, String>();
+        HashMap<String, String> message = new HashMap<>();
         if (host.equals("")) { message.put("error", "Host can't be empty!"); return message; }
         if (username.equals("")) { message.put("error", "Username can't be empty!"); return message; }
         if (password.equals("")) { message.put("error", "Password can't be empty!"); return message; }
         if (port.equals("")) { message.put("error", "Port can't be empty!"); return message; }
 
         return this.clientPI.connect(host, username, password, port);
+    }
+    
+    public String upload(String pathClient, String pathServer) {
+        if (this.clientPI.getClientDTP() == null) {
+            HashMap<String, String> pairs = new HashMap<>();
+            pairs.put("status", "fail");
+            pairs.put("message", "Haven't login yet!");
+            return new Gson().toJson(pairs);
+        }
+        
+        String res = this.clientPI.getClientDTP().upload(pathClient, pathServer);
+        showJTreeServerFilesFolders(pathServer);
+        
+        return res;
+    }
+    
+    public void download(String pathClient, String pathServer) {
+        this.clientPI.getClientDTP().download(pathClient, pathServer);
+    }
+    
+    private String getStringPath(Object[] paths) {
+        if (paths.length == 1) { return paths[0].toString(); }
+        
+        String curPath = "";
+        for (int i=0; i<paths.length; i++) {
+           if (i != 0) { curPath += "/"; }
+           if (paths[i].toString().equals("/") == false) curPath += paths[i];
+       }
+        
+        return curPath;
     }
     
     public TreeWillExpandListener handleTreeDirsWillExpand = new TreeWillExpandListener () {
@@ -69,7 +101,7 @@ public class ActionServerGUI {
                 if (paths[i].toString().equals("/") == false) curPath += paths[i];
             }
             CONFIG.print("treeWillExpand parent: " + curPath);
-            showJTreeServerFilesFolders((JTree) event.getSource(), curPath);
+            showJTreeServerFilesFolders(curPath);
         }
 
         @Override
@@ -89,7 +121,7 @@ public class ActionServerGUI {
                 if (paths[i].toString().equals("/") == false) curPath += paths[i];
             }
             CONFIG.print("treeWillExpand parent: " + curPath);
-            showJTreeServerFilesFolders((JTree) event.getSource(), curPath);
+            showJTreeServerFilesFolders(curPath);
         }
 
         @Override
@@ -103,14 +135,22 @@ public class ActionServerGUI {
             String curPath = "";
             CONFIG.print("treeWillExpand: " + e.getPath().toString());
             
-            Object[] paths = e.getPath().getPath();
-            for (int i=0; i<paths.length; i++) {
-                if (i != 0) { curPath += "/"; }
-                if (paths[i].toString().equals("/") == false) curPath += paths[i];
-            }
-            
+            curPath = getStringPath(e.getPath().getPath());
             txtPath.setText(curPath);
         }
+    };
+    
+    public TreeSelectionListener handleTreeDirsSelection = new TreeSelectionListener() {
+        @Override
+        public void valueChanged(TreeSelectionEvent e) {
+            String curPath = "";
+            CONFIG.print("treeWillExpand: " + e.getPath().toString());
+            curPath = getStringPath(e.getPath().getPath());
+            showJTreeServerFilesFolders(curPath);
+            
+            txtPath.setText(getStringPath(e.getPath().getPath()));
+        }
+    
     };
     
     private DefaultMutableTreeNode addNodesServer(DefaultMutableTreeNode curTop, ArrayList<LinkedTreeMap<String, String>> list, int index) {
@@ -143,7 +183,7 @@ public class ActionServerGUI {
         jTree.setModel(model);
     }
     
-    public void showJTreeServerFilesFolders(JTree jTree, String parentPath) {
+    public void showJTreeServerFilesFolders(String parentPath) {
         String json = clientPI.listFilesAndFoldersFromServer(parentPath);
         CONFIG.print("showJTreeServerFiles :" + parentPath + " ---- " + json);
         HashMap<String, ArrayList<String>> pairs = new HashMap<>();
@@ -151,9 +191,9 @@ public class ActionServerGUI {
         
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(parentPath);
         DefaultTreeModel model = new DefaultTreeModel(rootNode, true);
-        for (String folderName : pairs.get("folders")) {
-            rootNode.add(new DefaultMutableTreeNode(folderName));
-        }
+//        for (String folderName : pairs.get("folders")) {
+//            rootNode.add(new DefaultMutableTreeNode(folderName));
+//        }
         for (String fileName : pairs.get("files")) {
             rootNode.add(new DefaultMutableTreeNode(fileName, false));
         }
@@ -161,6 +201,21 @@ public class ActionServerGUI {
     }
     
     public void initJTreeFilesFoldersServer(JTree jTree) {
+        String json = clientPI.listFilesAndFoldersFromServer("/");
+        HashMap<String, ArrayList<String>> pairs = new HashMap<>();
+        pairs = new Gson().fromJson(json, pairs.getClass());
+        treeFilesFolders.addTreeSelectionListener(handleTreeFilesFoldersSelection);
+        
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("/");
+        DefaultTreeModel model = new DefaultTreeModel(rootNode, true);
+//        for (String folderName : pairs.get("folders")) {
+//            rootNode.add(new DefaultMutableTreeNode(folderName));
+//        }
+        for (String fileName : pairs.get("files")) {
+            rootNode.add(new DefaultMutableTreeNode(fileName, false));
+        }
+        treeFilesFolders.setModel(model);
+        
         if (!CONFIG.DEBUG) {
             jTree.expandRow(0);
             jTree.setRootVisible(false);

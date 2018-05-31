@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -17,6 +18,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import util.FilesUtil;
 import util.common_util;
 import vendor.CONFIG;
 
@@ -52,52 +54,131 @@ public class ClientDTP {
         pairs.put("user_token", user_token);
         
         common_util.write(bw, new Gson().toJson(pairs));
-        
         String res = br.readLine();
-        if (res.equals("success")) { return true; }
-        return false;
+        return res.equals("success");
     }
     
-    private boolean checkPathIsFolderInServer(String pathServer) throws IOException {
+    private boolean checkPathServerIsFolder(String pathServer) throws IOException {
         CONFIG.print("ClientDTP checkPathIsFolderInServer");
         HashMap<String, String> pairs = new HashMap<>();
         pairs.put("action", "isFolder");
         pairs.put("payload", pathServer);
         
         common_util.write(bw, new Gson().toJson(pairs));
-        
         String res = br.readLine();
         return res.equals("success");
     }
     
-    public void upload(String pathClient, String pathServer) {
+    private boolean checkPathServerIsFile(String pathServer) throws IOException {
+        CONFIG.print("ClientDTP checkPathServerIsFile");
+        HashMap<String, String> pairs = new HashMap<>();
+        pairs.put("action", "isFile");
+        pairs.put("payload", pathServer);
+        
+        common_util.write(bw, new Gson().toJson(pairs));
+        String res = br.readLine();
+        return res.equals("success");
+    }
+    
+    public String upload(String pathClient, String pathServer) {
+        HashMap<String, String> pairs = new HashMap<>();
+        
         try {
-            if (verify()) {
-                if (checkPathIsFolderInServer(pathServer)) {
-                    File f = new File(pathClient);
-                    FileInputStream fin = new FileInputStream(f);
-                    
-                    CONFIG.print("ClientDTP upload");
-                    HashMap<String, String> pairs = new HashMap<>();
-                    pairs.put("action", "upload");
-                    pairs.put("pathServer", pathServer);
-                    pairs.put("filename", f.getName());
-                    common_util.write(bw, new Gson().toJson(pairs));
-                    
-                    int c;
-                    do {
-                        c = fin.read();
-                        common_util.write(bw, String.valueOf(c));
-                    } while (c != -1);
-                    fin.close();
-                } else {
-                    CONFIG.print("ClientDTP checkPathIsFolderInServer: false");
-                }
-            } else {
-                // TODO: Print error
+            if (verify() == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Verify fail!");
+                return new Gson().toJson(pairs);
             }
-        } catch (Exception ex) {
+            
+            if (checkPathServerIsFolder(pathServer) == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Path server isn't a folder!");
+                return new Gson().toJson(pairs);
+            }
+            
+            if (FilesUtil.isFile(pathClient) == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Path client isn't a file!");
+                return new Gson().toJson(pairs);
+            }
+            
+            File f = new File(pathClient);
+            FileInputStream fin = new FileInputStream(f);
+
+            CONFIG.print("ClientDTP upload");
+            pairs.put("action", "upload");
+            pairs.put("pathServer", pathServer);
+            pairs.put("filename", f.getName());
+            common_util.write(bw, new Gson().toJson(pairs));
+                    
+            int c;
+            do {
+                c = fin.read();
+                common_util.write(bw, String.valueOf(c));
+            } while (c != -1);
+            fin.close();
+
+            String res = br.readLine();
+            CONFIG.print("DTP upload: " + res);
+            return res;
+        } catch (IOException ex) {
             Logger.getLogger(ClientDTP.class.getName()).log(Level.SEVERE, null, ex);
+            
+            pairs.put("status", "fail");
+            pairs.put("message", ex.getMessage());
+            return new Gson().toJson(pairs);
+        }
+    }
+    
+    public String download(String pathClient, String pathServer) {
+        HashMap<String, String> pairs = new HashMap<>();
+        
+        try {
+            if (verify() == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Verify fail!");
+                return new Gson().toJson(pairs);
+            }
+            
+            if (FilesUtil.isFolder(pathClient) == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Path client isn't a folder!");
+                return new Gson().toJson(pairs);
+            }
+            
+            if (checkPathServerIsFile(pathServer) == false) {
+                pairs.put("status", "fail");
+                pairs.put("message", "Path client isn't a file!");
+                return new Gson().toJson(pairs);
+            }
+            
+            CONFIG.print("ClientDTP download");
+            pairs.put("action", "download");
+            pairs.put("pathServer", pathServer);
+            common_util.write(bw, new Gson().toJson(pairs));
+            
+            String filename = br.readLine();
+            File f = new File(pathClient + "/" + filename);
+            FileOutputStream fout = new FileOutputStream(f);
+            
+            int ch; String temp;
+            do {
+                temp = br.readLine();
+                if (temp.equals("")) { break; }
+                ch = Integer.parseInt(temp);
+                if(ch != -1) { fout.write(ch); }
+            } while (ch != -1);
+            fout.close();
+            
+            String res = br.readLine();
+            CONFIG.print("DTP upload: " + res);
+            return res;
+        } catch (IOException ex) {
+            Logger.getLogger(ClientDTP.class.getName()).log(Level.SEVERE, null, ex);
+            
+            pairs.put("status", "fail");
+            pairs.put("message", ex.getMessage());
+            return new Gson().toJson(pairs);
         }
     }
 }
